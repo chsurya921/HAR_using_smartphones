@@ -1,0 +1,10 @@
+experiment,model,val_accuracy,val_macro_f1,test_accuracy,test_macro_f1,test_log_loss,train_time_s,val_latency_ms_per_sample,n_states,covariance_type,false_activity_switch_rate,transition_consistency,latency_ms_per_sample
+B,logistic_regression,0.905051,0.910715,0.858839,0.857607,0.37761,0.41,0.0002,,,,,
+B,decision_tree,0.8,0.795629,0.766882,0.761315,3.218855,0.06,0.0001,,,,,
+C,random_forest,0.880808,0.882969,0.839498,0.835506,0.433988,0.434,,,,,,
+C,hist_gradient_boosting,0.872054,0.874019,0.846284,0.844367,0.688438,6.919,,,,,,
+C,hard_voting,0.888889,0.891417,0.857822,0.855009,,4.156,,,,,,
+C,soft_voting,0.893603,0.897319,0.858839,0.856505,0.347026,1.976,,,,,,
+C,stacking,0.909091,0.913619,0.865287,0.864021,0.368759,3.313,,,,,,
+D,hmm_gaussian,,,0.693926,0.684183,,1.725,,6.0,diag,0.093261,0.630631,0.0039
+E,hybrid_hmm_ensemble,,,0.936206,0.934352,,,,,,0.006467,0.801802,
