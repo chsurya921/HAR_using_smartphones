@@ -1,0 +1,44 @@
+Loading data and preprocessing …
+Loading data and preprocessing …
+=== Experiment A: Dataset Characterisation ===
+  Saved class distribution plot.
+  PCA: 20 components, 77.5% variance.
+  [A] Complete.
+
+=== Experiment B: Baseline Classifiers ===
+  Fitting logistic_regression …
+  Fitting decision_tree …
+  [B] Complete.
+
+=== Experiment C: Ensemble Comparison ===
+  Fitting random_forest …
+  Fitting hist_gradient_boosting …
+  Fitting hard_voting …
+  Fitting soft_voting …
+  Fitting stacking …
+  [C] Complete.
+
+=== Experiment D: HMM (Supervised Init + Baum-Welch) ===
+  Supervised init …
+  Baum-Welch EM …
+  Training time: 1.72s
+  [D] Complete.
+
+=== Experiment E: Hybrid HMM-Ensemble ===
+  [E] Complete.
+
+=== Experiment H: Unseen-Participant Generalisation ===
+  Per-subject macro-F1 saved to results/H_per_subject_f1.csv
+  [H] Complete.
+
+=== Experiment I: Latency and Model Size ===
+  logistic_regression: 0.0001 ms/sample, 1.7 KB
+  decision_tree: 0.0001 ms/sample, 52.9 KB
+  random_forest: 0.0079 ms/sample, 24773.2 KB
+  hist_gradient_boosting: 0.0261 ms/sample, 3563.7 KB
+  hard_voting: 0.0367 ms/sample, 28998.2 KB
+  soft_voting: 0.0368 ms/sample, 28998.2 KB
+  stacking: 0.0081 ms/sample, 24838.3 KB
+  [I] Complete.
+
+All experiments complete. Results in results/

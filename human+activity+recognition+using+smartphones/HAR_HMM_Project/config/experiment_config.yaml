@@ -1,0 +1,118 @@
+# ============================================================
+# experiment_config.yaml — Frozen configuration for HAR project
+# Do NOT change seeds, splits, or paths after Stage 1 is locked.
+# ============================================================
+
+# ── Reproducibility ────────────────────────────────────────
+seeds:
+  global: 42
+  numpy: 42
+  sklearn: 42
+
+# ── Data paths (relative to project root) ──────────────────
+paths:
+  dataset_root: "../UCI HAR Dataset"
+  train_X: "../UCI HAR Dataset/train/X_train.txt"
+  train_y: "../UCI HAR Dataset/train/y_train.txt"
+  train_subjects: "../UCI HAR Dataset/train/subject_train.txt"
+  test_X: "../UCI HAR Dataset/test/X_test.txt"
+  test_y: "../UCI HAR Dataset/test/y_test.txt"
+  test_subjects: "../UCI HAR Dataset/test/subject_test.txt"
+  features: "../UCI HAR Dataset/features.txt"
+  activity_labels: "../UCI HAR Dataset/activity_labels.txt"
+  results_dir: "results"
+  figures_dir: "results/figures"
+  logs_dir: "results/logs"
+  metrics_csv: "results/metrics.csv"
+
+# ── Split configuration ────────────────────────────────────
+# Subject-independent splits: NO subject appears in more than one split.
+# Subject IDs in UCI HAR: 1–30 (30 subjects total)
+# Pre-defined from official split (train=21, test=9 subjects).
+# Validation carved from training subjects ONLY.
+splits:
+  # These are the official UCI HAR subject IDs used in training
+  train_subject_ids: [1,3,5,6,7,8,11,14,15,16,17,19,21,22,23,25,26,27,28,29,30]
+  # Leave-out for validation (from training subjects, never seen in test)
+  val_subject_ids: [27, 28, 29, 30]
+  # Official UCI HAR test subjects (fixed, never touched during training/validation)
+  test_subject_ids: [2,4,9,10,12,13,18,20,24]
+
+# ── Cross-validation ──────────────────────────────────────
+cross_validation:
+  n_folds: 5
+  strategy: "subject_group_kfold"   # GroupKFold on subject IDs
+
+# ── Preprocessing ─────────────────────────────────────────
+preprocessing:
+  scaler: "StandardScaler"
+  pca:
+    enabled: true
+    n_components: 20          # Tunable: 10–30, chosen on validation
+    whiten: false
+
+# ── HMM configuration (Unit 4) ────────────────────────────
+hmm:
+  n_states: 6                 # One hidden state per activity (supervised init)
+  n_activities: 6
+  emission_type: "gaussian"   # Options: gaussian | gmm
+  gmm_n_components: 3
+  covariance_type: "diag"     # diag | full
+  baum_welch:
+    max_iter: 100
+    tol: 1.0e-4
+  min_variance: 1.0e-5        # Floor to prevent covariance singularity
+
+# ── PCA sweep for HMM ─────────────────────────────────────
+hmm_pca_sweep:
+  n_components_grid: [10, 15, 20, 25, 30]
+
+# ── HMM state count sweep (Experiment F) ──────────────────
+hmm_state_sweep:
+  n_states_grid: [4, 5, 6, 8, 10]
+
+# ── Ensemble configuration (Unit 5 provisional) ───────────
+ensemble:
+  logistic_regression:
+    max_iter: 1000
+    C: 1.0
+    solver: "lbfgs"
+    multi_class: "multinomial"
+  decision_tree:
+    max_depth: 10
+    min_samples_leaf: 5
+  random_forest:
+    n_estimators: 200
+    max_depth: null
+    min_samples_leaf: 2
+    n_jobs: -1
+  hist_gradient_boosting:
+    max_iter: 200
+    learning_rate: 0.1
+    max_depth: 6
+    l2_regularization: 0.0
+  voting:
+    voting: "soft"            # hard | soft
+  stacking:
+    cv: 5                     # Subject-grouped folds for out-of-fold meta-features
+    meta_learner: "logistic_regression"
+    passthrough: false
+
+# ── Hybrid HMM-Ensemble configuration ─────────────────────
+hybrid:
+  method: "emission_evidence"  # Divide ensemble posteriors by class priors
+  lambda_grid: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+# ── Evaluation metrics ────────────────────────────────────
+evaluation:
+  primary_metric: "macro_f1"
+  metrics:
+    - accuracy
+    - macro_precision
+    - macro_recall
+    - macro_f1
+    - log_loss
+    - per_class_f1
+    - false_activity_switch_rate
+    - training_time_seconds
+    - inference_latency_ms_per_sample
