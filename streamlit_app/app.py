@@ -70,19 +70,39 @@ CONFIG_PATH = os.path.join(PROJECT_DIR, "config", "experiment_config.yaml")
 
 @st.cache_resource(show_spinner="Loading dataset …")
 def load_data():
-    from data_loader import HARDataLoader
-    from preprocessing import Preprocessor
+    pkl_path = os.path.join(PROJECT_DIR, "results", "demo_data.pkl")
+    try:
+        from data_loader import HARDataLoader
+        from preprocessing import Preprocessor
 
-    loader = HARDataLoader(config_path=CONFIG_PATH, base_dir=PROJECT_DIR)
-    splits = loader.load_all()
+        loader = HARDataLoader(config_path=CONFIG_PATH, base_dir=PROJECT_DIR)
+        splits = loader.load_all()
 
-    prep = Preprocessor(config_path=CONFIG_PATH)
-    X_tr, X_va, X_te = prep.fit_transform(
-        splits.train_X, splits.val_X, splits.test_X)
-    seqs_tr = prep.transform_sequences(splits.sequences_train)
-    seqs_te = prep.transform_sequences(splits.sequences_test)
-
-    return splits, prep, X_tr, X_va, X_te, seqs_tr, seqs_te
+        prep = Preprocessor(config_path=CONFIG_PATH)
+        X_tr, X_va, X_te = prep.fit_transform(
+            splits.train_X, splits.val_X, splits.test_X)
+        seqs_tr = prep.transform_sequences(splits.sequences_train)
+        seqs_te = prep.transform_sequences(splits.sequences_test)
+        return splits, prep, X_tr, X_va, X_te, seqs_tr, seqs_te
+    except Exception:
+        if os.path.exists(pkl_path):
+            import pickle
+            with open(pkl_path, "rb") as fh:
+                d = pickle.load(fh)
+            class MockSplits:
+                train_X = d["X_tr"]
+                train_y = d["y_tr"]
+                test_X = d["X_te"]
+                test_y = d["y_te"]
+                activity_labels = d["activity_labels"]
+                feature_names = d["feature_names"]
+            class MockPrep:
+                n_features_out = d["X_tr"].shape[1]
+                class MockPCA:
+                    explained_variance_ratio_ = d["pca_variance"]
+                pca = MockPCA() if d.get("pca_variance") is not None else None
+            return MockSplits(), MockPrep(), d["X_tr"], d["X_te"][:10], d["X_te"], d["seqs_tr"], d["seqs_te"]
+        raise
 
 
 @st.cache_resource(show_spinner="Training models … (this may take ~60s)")
